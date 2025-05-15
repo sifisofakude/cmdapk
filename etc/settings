@@ -18,12 +18,11 @@
 
 # Root directory for projects, uncomment variable to set a value
 # eg. PROJECT_DIR=/home/user/AndroidProjects
-PROJECT_DIR=$HDD/CMDAPK
+# PROJECT_DIR=
 
 # Path to the android sdk to compile projects
 # eg. ANDROID_SDK=$HOME/Android/SDK
-ANDROID_SDK=$HDD/Software/android-sdk
-# ANDROID_SDK=$ANROID_SDK_HOME
+# ANDROID_SDK=
 
 # Path to the NDK to compile C/C++ shared libraries
 # eg. ANDROID_SDK=$HOME/Android/NDK

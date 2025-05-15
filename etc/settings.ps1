@@ -15,10 +15,10 @@
 # 
 
 # Path to where cmdapk.ps1 script create pojects to or compile from
-$PROJECT_DIR="\mnt\0ca87750-5adc-420b-a266-60d23a5890df\CMDAPK"
+# $PROJECT_DIR=
 
 # Path to access the android sdk to be able to compile applications
-$ANDROID_SDK="\mnt\0ca87750-5adc-420b-a266-60d23a5890df\Software\android-sdk"
+# $ANDROID_SDK=
 
 # Path to android native development kit if compiling C/C++
 # $ANDROID_NDK=
