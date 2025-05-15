@@ -1,0 +1,336 @@
+#!/bin/env bash
+
+#
+# Copyright 2025 Sifiso Fakude
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+# 
+#       http://www.apache.org/licenses/LICENSE-2.0
+# 
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+# 
+
+SCRIPT_ROOT=$(dirname $0)
+
+source $SCRIPT_ROOT/../etc/settings
+
+if [[ -z $PROJECT_DIR ]];then
+	echo "Please set PROJECT_DIR to be able to create and compile projects"
+	exit 1
+fi
+
+SAMPLE_PATH=$(cd $SCRIPT_ROOT/../templates;pwd)
+BASE_PATH=$PROJECT_DIR
+
+i=0
+arr=($*)
+
+is_option()	{
+	if [[ ! -z $1 && ! -z $(echo $1 | grep "^-") ]];then
+		is_opt=true
+	elif [[ -z $1 ]];then
+		is_opt="empty"
+	else
+		is_opt=false
+	fi
+}
+
+options_menu()	{
+	echo "usage:"
+	echo "  cmdapk --project-name param "
+	echo
+	echo "options:"
+#	echo "  --compose               specify you're using jetpack compose"
+#	echo
+	echo "  --projectname  param    create a project with name"
+	echo
+	echo "  --packagename  param    package name"
+	echo
+	echo "  --activity      param    main activity class"
+	echo
+	echo "  --layout        param    main layout"
+	echo
+	echo "  --minsdk       param    minimum sdk version the application"
+	echo "                           will be compatable with"
+	echo
+	echo "  --maxsdk       param    targeted sdk version the application"
+	echo "                           will be compatable with"
+	echo
+	echo "  --lang          param    specify a language to write the application"
+	echo "                           with(java/kotlin)"
+	echo
+	echo "  --compile       [param]  optional /project, compiles from current"
+	echo "                           directory if no parameter is passed"
+}
+
+for arg in "${arr[@]}";do
+	if [ $(echo "$arg" | grep "^--") ];then
+		optparam="${arr[(($i+1))]}"
+		is_option "$optparam"
+		
+		if [[ $arg == "--activity" ]];then
+			if [[ $is_opt == "false" ]];then
+				activity=$optparam
+			fi
+		fi
+		
+		if [[ $arg == "--layout" ]];then
+			if [[ $is_opt == "false" ]];then
+				layout=$optparam
+			fi
+		fi
+		
+		if [[ $arg == "--packagename" ]];then
+			if [[ $is_opt == "false" ]];then
+				pkg_name=$optparam
+			fi
+		fi
+		
+		if [[ $arg == "--projectname" ]];then
+			if [[ $is_opt == "false" ]];then
+				proj_name=$optparam
+			fi
+		fi
+
+		if [[ $arg == "--minsdk" ]];then
+			if [[ $is_opt  == "false" ]];then
+				min_sdk=$optparam
+			fi
+		fi
+
+		if [[ $arg == "--maxsdk" ]];then
+			if [[ $is_opt  == "false" ]];then
+				max_sdk=$optparam
+			fi
+		fi
+
+		if [[ $arg == "--plain" ]];then
+			if [[ $is_opt  == "false" ]];then
+				androidx=$optparam
+			fi
+		fi
+
+		if [[ $arg == "--lang" ]];then
+			if [[ $is_opt  == "false" ]];then
+				language=$optparam
+			fi
+		fi
+
+		if [[ $arg == "--appname" ]];then
+			if [[ $is_opt  == "false" ]];then
+				app_name=$optparam
+			fi
+		fi
+
+		if [[ $arg == "--compile" ]];then
+			app_compilation="true"
+			if [[ $is_opt  == "false" ]];then
+				compile_name=$optparam
+			fi
+		fi
+
+		if [[ $arg == "--install" ]];then
+			app_installtion="true"
+			if [[ $is_opt  == "false" ]];then
+				app_install_name=$optparam
+			fi
+		fi
+
+		if [[ $arg == "--compose" ]];then
+			compose="true"
+		fi
+	else
+		((i=$i+1))
+		continue
+	fi
+	((i=$i + 1))
+done
+
+if [[ -z $proj_name && -z $app_compilation && -z $app_installtion ]];then
+	options_menu
+	exit
+fi
+
+if [ ! -z $proj_name ];then
+
+	if [[ -z $activity ]];then
+		activity="MainActivity"
+	fi
+
+	if [[ -z $layout ]];then
+		layout="activity_main"
+	fi
+
+	if [[ -z $pkg_name ]];then
+		pkg_name="com.example."$(echo $proj_name | tr "A-Z" "a-z")
+	fi
+
+	if [[ -z $min_sdk ]];then
+		min_sdk="23"
+	fi
+
+	if [[ -z $max_sdk ]];then
+		max_sdk="35"
+	fi
+
+	if [[ -z $androidx ]];then
+		androidx=true
+	fi
+
+	if [ -z $jni ];then
+		jni=false
+	fi
+
+	if [[ -z $language ]];then
+		language="java"
+	fi
+
+	if [[ -z $app_name ]];then
+		app_name=$proj_name
+	fi
+
+	if [[ ! -d $BASE_PATH ]];then
+		mkdir $BASE_PATH
+	fi
+
+	if [[ -d $BASE_PATH/$proj_name ]];then
+		echo "cmdapk: error: project with the same name already exists, try a different one."
+		exit
+		# rm -r $BASE_PATH/$proj_name/*
+	else
+		mkdir $BASE_PATH/$proj_name
+	fi
+
+	if [[ ! -d $SAMPLE_PATH/.tmp ]];then
+		mkdir $SAMPLE_PATH/.tmp
+	# 	echo wow
+	else
+		if [[ ! -z $(ls $SAMPLE_PATH/.tmp) ]];then
+			rm -r $SAMPLE_PATH/.tmp/*
+		fi
+	fi
+
+	if [[ $androidx == "true" ]];then
+		TMP_PATH=$SAMPLE_PATH/androidx-sample
+	else
+		TMP_PATH=$SAMPLE_PATH/android-sample
+	fi
+
+	if [ ! -d $TMP_PATH/$language ];then
+		language="java"
+	fi
+
+	if [ $androidx == "true" ];then
+		app_theme="Theme.MaterialComponents.DayNight.ActionBar"
+	else
+		app_theme="@android:style/Theme.Light"
+	fi
+
+	if [ $language == "java" ];then
+		lang_ext=".java"
+	else
+		lang_ext=".kt"
+	fi
+	
+	if [ ! -z $compose ];then
+		exit
+	fi
+
+	mkdir -p $SAMPLE_PATH/.tmp/app/libs
+	mkdir -p $SAMPLE_PATH/.tmp/app/src/main/java
+	mkdir -p $SAMPLE_PATH/.tmp/app/src/main/assets
+	mkdir -p $SAMPLE_PATH/.tmp/app/src/main/res/layout
+	mkdir -p $SAMPLE_PATH/.tmp/app/src/main/res/values
+	mkdir -p $SAMPLE_PATH/.tmp/app/src/main/java/$(echo $pkg_name | sed "s/\./\//g")
+
+	pkg_path="$SAMPLE_PATH/.tmp/app/src/main/java/"$(echo $pkg_name | sed "s/\./\//g")
+
+	cat $TMP_PATH/layout.slam | sed "s/ACTIVITY/$activity/" > $SAMPLE_PATH/.tmp/app/src/main/res/layout/$layout.xml
+	cat $SAMPLE_PATH/settings.gradle | sed "s/PROJ_NAME/$proj_name/" > $SAMPLE_PATH/.tmp/settings.gradle
+	cat $SAMPLE_PATH/strings.slam | sed "s/APP_NAME/$app_name/" > $SAMPLE_PATH/.tmp/app/src/main/res/values/strings.xml
+	cat $SAMPLE_PATH/styles.slam | sed "s/THEME_PARENT/$app_theme/" > $SAMPLE_PATH/.tmp/app/src/main/res/values/styles.xml
+	cat $SAMPLE_PATH/AndroidManifest.slam | sed "s/PKG_NAME/$pkg_name/;s/ACTIVITY/$activity/" > $SAMPLE_PATH/.tmp/app/src/main/AndroidManifest.xml
+	cat $TMP_PATH/$language/activity.slam | sed "s/PKG_NAME/$pkg_name/;s/LAYOUT/$layout/;s/ACTIVITY/$activity/" > $pkg_path"/$activity$lang_ext"
+	cat $TMP_PATH/build.gradle | sed "s/PKG_NAME/$pkg_name/g;s/MIN_SDK/$min_sdk/;s/MAX_SDK/$max_sdk/;s/COMP_SDK/$max_sdk/" > $SAMPLE_PATH/.tmp/app/build.gradle
+
+	cp $SAMPLE_PATH/build.gradle $SAMPLE_PATH/.tmp/
+	cp $SAMPLE_PATH/gradle.properties $SAMPLE_PATH/.tmp/
+	cp "$SAMPLE_PATH/local.properties" $SAMPLE_PATH/.tmp/
+	cp $SAMPLE_PATH/proguard-rules.pro $SAMPLE_PATH/.tmp/app
+
+	for arg in $(ls $SAMPLE_PATH);do
+		if [ $(echo $arg | grep "^drawable") ] || [ $(echo $arg | grep "^mipmap") ];then
+			cp -r $SAMPLE_PATH/$arg $SAMPLE_PATH/.tmp/app/src/main/res/
+		fi
+	done
+	# echo $jni
+
+	cp -r $SAMPLE_PATH/.tmp/* $BASE_PATH/$proj_name/;rm -r $SAMPLE_PATH/.tmp
+fi
+
+if [ ! -z $app_compilation ];then
+	if [ -z $compile_name ];then
+		compile_name=.
+	fi
+	
+	if ! command -v gradle &> /dev/null;then
+		echo "Gradle is not installed or not in PATH. Please install it first"
+		exit 1
+	fi
+	[[ "$compile_name" == "." ]] && compile_name=$(pwd | sed "s#$BASE_PATH/##")
+
+	if [[ ! -d $BASE_PATH/$compile_name ]];then
+		echo "Compilation error: you are not in project root"
+		exit
+	fi
+	
+	cd $BASE_PATH/$compile_name;gradle build
+
+	[[ ! -f app/build/outputs/apk/debug/app-debug.apk ]] && exit
+
+	app_installtion="true"
+	app_install_name="."
+fi
+
+if [[ ! -z $app_installtion ]];then
+	if ! command -v adb &>/dev/null;then
+	 echo "adb is not installed or not in PATH, install adb first for app nstallation"
+	 exit 1
+	fi
+
+	if [[ $app_install_name == "." ]];then
+		app_install_name=$(pwd | sed "s#$BASE_PATH/##")
+	fi
+
+	if [[ ! -d $BASE_PATH/$app_install_name ]];then
+		echo "Project '$app_install_name' does not exist"
+		exit 1
+	fi
+
+	app_path=$BASE_PATH/$app_install_name/app/build/outputs/apk/debug/app-debug.apk
+
+	if [[ ! -f $app_path ]];then
+		echo "No app to install"
+		exit 1
+	fi
+
+	adb install $app_path
+
+fi
+
+
+
+
+
+
+
+
+
+
+

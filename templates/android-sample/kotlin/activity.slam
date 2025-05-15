@@ -1,0 +1,11 @@
+package PKG_NAME;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+class ACTIVITY : AppCompatActivity()	{
+	override fun onCreate(Bundle savedStateInstance)	{
+		super.onCreate(savedStateInstance);
+		setContentView(R.layout.LAYOUT);
+	}
+}

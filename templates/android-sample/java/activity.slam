@@ -1,0 +1,12 @@
+package PKG_NAME;
+
+import android.os.Bundle;
+import android.app.Activity;
+
+public class ACTIVITY extends Activity	{
+	@Override
+	public void onCreate(Bundle savedStateInstance)	{
+		super.onCreate(savedStateInstance);
+		setContentView(R.layout.LAYOUT);
+	}
+}
