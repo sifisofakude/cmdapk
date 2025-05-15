@@ -38,7 +38,6 @@ if($PROJECT_DIR -eq $null -or $PROJECT_DIR -eq "")	{
 
 
 function Usage	{
-	$space = " "
 	Write-Output " usage: \path\to\cmdapk.ps1 --ProjectName Name [--PackageName ]"
 	Write-Output ""
 	Write-Output "        \path\to\cmdapk.ps1 --Compile ProjectDirectory"
