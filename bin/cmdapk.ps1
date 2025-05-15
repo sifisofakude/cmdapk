@@ -15,11 +15,12 @@
 # 
 param (
 	[string]$ProjectName,
-	[string]$PackageName,
-	[string]$AppName,
-	[string]$Activity = "MainActivity",
-	[string]$Layout = "activity_main",
-	[int]$MinSdk = 23,
+	# [string]$ProjectNameValue
+	[string]$packagename,
+	[string]$appname,
+	[string]$activity = "MainActivity",
+	[string]$layout = "activity_main",
+	[string]$minsdk = 23,
 	[int]$MaxSdk = 35,
 	[string]$Lang = "java",
 	[string]$Plain,
@@ -38,45 +39,92 @@ if($PROJECT_DIR -eq $null -or $PROJECT_DIR -eq "")	{
 
 
 function Usage	{
-	Write-Output " usage: \path\to\cmdapk.ps1 --ProjectName Name [--PackageName ]"
+	$space = " "
+	Write-Output " usage: \path\to\cmdapk.ps1 -projectname Name [-packagename com.example.app]"
 	Write-Output ""
 	Write-Output "        \path\to\cmdapk.ps1 --Compile ProjectDirectory"
 	Write-Output ""
 	Write-Output " options:"
-	Write-Output "    --projectname    param       Name of the project to be created, param will stripped of all spaces."
+	Write-Output "    -projectname    param       Name of the project to be created, param will stripped of all spaces."
 	Write-Output ""
-	Write-Output "    --packagename    param       Package name,defaults to com.example.projectname"
+	Write-Output "    -packagename    param       Package name,defaults to com.example.projectname"
 	Write-Output ""
-	Write-Output "    --appname        param       Display name for the application"
+	Write-Output "    -appname        param       Display name for the application"
 	Write-Output ""
-	Write-Output "    --activity       param       Default launcher activity for the application"
+	Write-Output "    -activity       param       Default launcher activity for the application"
 	Write-Output ""
-	Write-Output "    --layout         param       Main layout for application ui"
+	Write-Output "    -layout         param       Main layout for application ui"
 	Write-Output ""
-	Write-Output "    --plain          param       Generate a plain activity without using AndroidX libraries"
+	Write-Output "    -plain          param       Generate a plain activity without using AndroidX libraries"
 	Write-Output ""
-	Write-Output "    --minsdk         param       Minimum SDK API level the application will be compatible with"
+	Write-Output "    -minsdk         param       Minimum SDK API level the application will be compatible with"
 	Write-Output ""
-	Write-Output "    --maxsdk         param       Maximum SDK API level the application will be compatible with"
+	Write-Output "    -maxsdk         param       Maximum SDK API level the application will be compatible with"
 	Write-Output ""
-	Write-Output "    --lang           param       Language to create main activity with (java/kotlin), defaults to java"
+	Write-Output "    -lang           param       Language to create main activity with (java/kotlin), defaults to java"
 	Write-Output ""
-	Write-Output "    --theme          param       Root theme for application."
+	Write-Output "    -theme          param       Root theme for application."
 	Write-Output ""
-	Write-Output "    --compile        [param]     Compiles project from current directory or a specific one if param is provided."
+	Write-Output "    -compile        [param]     Compiles project from current directory or a specific one if param is provided."
 	Write-Output "                                 Upon successful compile the application will be installed automatically to available"
 	Write-Output "                                 devices, make sure only one device/emulator connected"
 	Write-Output ""
-	Write-Output "    --install        [param]     Install app from current directory or a specific one if param is provided."
+	Write-Output "    -install        [param]     Install app from current directory or a specific one if param is provided."
 }
 
-if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
+if($ProjectName)	{
 	$proj_name = $ProjectName -replace ' ',''
+
+	if($proj_name.StartsWith("-"))	{
+		Usage
+		exit
+	}
+
 	if(Test-Path "$PROJECT_DIR\$proj_name")	{
 		Write-Output "Project already exist"
 		exit
 	}else	{
-		New-Item -ItemType Directory -path $PROJECT_DIR\$proj_name > $null
+		New-Item -ItemType Directory -path $PROJECT_DIR\$proj_name 2> $null
+	}
+
+	if($AppName.StartsWith("-"))	{
+		$AppName = "$proj_name"
+	}
+
+	if($PackageName.StartsWith("-"))	{
+		$PackageName = "com.exmple.$proj_name".ToLower()
+	}
+
+	if($Activity.StartsWith("-"))	{
+		$Activity = "MainActivity"
+	}
+
+	if($Layout.StartsWith("-"))	{
+		$Layout = "activity_main"
+	}
+
+	if($Lang.StartsWith("-"))	{
+		$Lang = "java"
+	}
+
+	if($Lang.StartsWith("-"))	{
+		$Lang = "java"
+	}
+
+	if($Plain.StartsWith("-"))	{
+		$Plain = $null
+	}
+
+	if($Theme.StartsWith("-"))	{
+		$Theme = $null
+	}
+
+	if($minsdk -is [string])	{
+		$minsdk = 23
+	}
+
+	if($maxsdk -is [string])	{
+		$maxsdk = 35
 	}
 
 	# Create the directory structure for th app
@@ -88,7 +136,7 @@ if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
 
 	$template_root = Resolve-Path "$script_root\..\templates"
 	if($Plain -eq $null -or $Plain.Trim() -eq "")	{
-		$app_theme = "Theme.AppCompat.DayNight.ActionBar"
+		$app_theme = "Theme.AppCompat.DayNight.NoActionBar"
 		$sample_path = Resolve-Path "$template_root\androidx-sample"
 	}else	{
 		$app_theme = "Theme.Holo"
@@ -111,7 +159,7 @@ if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
 	$output_file = "$PROJECT_DIR\$proj_name\app\src\main\AndroidManifest.xml"
 	Get-Content $current_file | ForEach-Object	{
 		# Write-Output $_
-		$_ -replace 'ACTIVITY',$Activity
+		$_ -creplace 'ACTIVITY',$Activity
 	} | Set-Content $output_file
 
 	$current_file = "$template_root\local.properties"
@@ -147,7 +195,7 @@ if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
 	$current_file = "$template_root\strings.slam"
 	$output_file = "$PROJECT_DIR\$proj_name\app\src\main\res\values\strings.xml"
 
-	if($AppName -eq $null -or $AppName.Trim() -eq "")	{
+	if($AppName -eq $null -or $AppName.Trim() -eq "" -or $AppName.StartsWith("-"))	{
 		$app_name = $proj_name
 	}else	{
 		$app_name = $AppName
@@ -176,7 +224,11 @@ if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
 	if($PackageName -eq $null -or $PackageName.Trim() -eq "")	{
 		$pkg_name = "com.example.$proj_name".ToLower()
 	}else	{
-		$pkg_name = $PackageName -replace ' ',''
+		if($PackageName.StartsWith("-"))	{
+			$pkg_name = "com.example.$proj_name".ToLower()
+		}else	{
+			$pkg_name = $PackageName -replace ' ',''
+		}
 	}
 	
 	Get-Content $current_file | ForEach-Object	{
@@ -192,7 +244,7 @@ if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
 
 	
 	$java_src = "$PROJECT_DIR\$proj_name\app\src\main\java\$pkg_name" -replace '\.','\'
-	New-Item -ItemType Directory -path $java_src 2> $null
+	New-Item -ItemType Directory -path $java_src > $null
 
 	if($Lang -eq "java")	{
 		$file_extension = "java"
@@ -207,6 +259,7 @@ if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
 			$line = $line -creplace 'COMP_SDK',$MaxSdk
 			$line = $line -creplace 'MAX_SDK',$MaxSdk
 			$line = $line -creplace 'MIN_SDK',$MinSdk
+			$line = $line -creplace 'ACTIVITY',$activity
 
 			$line
 		} | Set-Content "$PROJECT_DIR\$proj_name\app\build.gradle"
@@ -219,6 +272,7 @@ if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
 		$line = $_
 		$line = $line -creplace 'PKG_NAME',$pkg_name
 		$line = $line -creplace 'LAYOUT',$Layout
+		$line = $line -creplace 'ACTIVITY',$Activity
 
 		$line
 	} | Set-Content $output_file
@@ -226,6 +280,7 @@ if($ProjectName -ne $null -and $ProjectName.Trim() -ne "")	{
 
 if($Compile -ne $null -and $Compile.Trim() -ne "")	{
 	Write-Output "Preparing to compile..."
+	$env:ANDROID_HOME = "$ANDROID_SDK"
 	
 	if($Compile -eq ".")	{
 		$compile_folder = Get-Location
@@ -242,9 +297,7 @@ if($Compile -ne $null -and $Compile.Trim() -ne "")	{
 		gradle build
 		
 		if(Test-Path "app\build\outputs\apk\debug\app-debug.apk")	{
-			$install_debug = Resolve-Path "app\build\outputs\apk\debug\app-debug.apk"
-			adb install $install_debug
-			
+			$install = "."
 		}
 	}else	{
 		Write-Output "Compilation failed. Make sure you are in project root or supply a project name created with PROJECT_DIR"
@@ -267,4 +320,8 @@ if($Install -ne $null -and $install.Trim() -ne "")	{
 	}else	{
 		Write-Output "No app to install"
 	}
+}
+
+if(-not $ProjectName -and -not $Compile -and -not $install)	{
+	Usage
 }
