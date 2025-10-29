@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+
+# --------------------------------------------------------------------------------------
+# 
+# Description 
+#   cmdapk - A simple command-line tool to create, compile, and install Android
+#   applications using Gradle. It can also scaffold Activities, Classes, and 
+#   Layouts in an existing
+#
+# --------------------------------------------------------------------------------------
+# 
+# Copyright 2025 Sifiso Fakude
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+# 
+#       http://www.apache.org/licenses/LICENSE-2.0
+# 
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+# 
+# --------------------------------------------------------------------------------------
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# used by logging functions to determine
+# whether to log a message or return
+quiet_mode=false
+
+# ---------- Configuration loading --------------------
+SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+TEMPLATE_ROOT="$SCRIPT_ROOT/../templates"
+DEFAULT_SETTINGS="$SCRIPT_ROOT/../etc/settings"
+
+# Load libraries
+for lib in "$SCRIPT_ROOT/../lib/"*.sh; do
+	source "$lib"
+done
+
+# Source settings if present
+if [[ -f "$DEFAULT_SETTINGS" ]];then
+	source "$DEFAULT_SETTINGS"
+fi
+
+if [[ -z "${PROJECT_DIR:-}" ]]; then
+	die "PROJECT_DIR is not set. Please define it in your shell or in etc/settings before using cmdapk."
+fi
+
+if [[ -z "${ANDROID_SDK:-}" ]]; then
+	die "ANDROID_SDK is not set. Please define it in your shell or in etc/settings before using cmdapk."
+fi
+
+parse_args "$@"
+
+
+if [[ -n "$projectname" ]];then
+	create_project
+elif [[ -n "$activity" ]]; then
+	create_activity
+elif [[ -n "$classname" ]]; then
+	create_class
+elif [[ -n "$layoutname" ]]; then
+	create_layout
+elif [[ -n "$compile_target" ]];then
+	compile_project
+elif [[ -n "$install_target" ]];then
+	install_apk
+elif [[ -n "$modulename" ]]; then
+	add_module_for
+else
+	usage
+	exit 1
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
