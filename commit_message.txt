@@ -1,5 +1,0 @@
-Minor bug fix
-
-- Fixed creating a Compose application when --library is specified
-- Default Android SDK versions for targetSdk,minSdk,compileSdk can no be set in ect/settings
-- Variables for default SDK versions: MIN_SDK,TARGET_SDK & COMPILE_SDK
