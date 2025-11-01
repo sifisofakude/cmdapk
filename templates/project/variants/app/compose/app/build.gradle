@@ -1,23 +1,23 @@
 plugins	{
-	id 'com.android.application'
-	id 'org.jetbrains.kotlin.android'
+	id("com.android.application")
+	id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android	{
-	namespace = '__PACKAGE_NAME__'
-	compileSdkVersion = __COMPILE_SDK__
+	namespace = "__PACKAGE_NAME__"
+	compileSdk = __COMPILE_SDK__
 	defaultConfig	{
-		applicationId = '__PACKAGE_NAME__'
-		minSdkVersion = __MIN_SDK__
-		targetSdkVersion = __TARGET_SDK__
+		applicationId = "__PACKAGE_NAME__"
+		minSdk = __MIN_SDK__
+		targetSdk = __TARGET_SDK__
 		versionCode = 1
-		versionName = '1.0'
+		versionName = "1.0"
 	}
 
 	buildTypes	{
 		release	{
 			minifyEnabled = false
-			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+			proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
 		}
 		
 		debug {
@@ -38,12 +38,15 @@ java	{
 }
 
 dependencies	{
-  implementation 'androidx.core:core-ktx:1.12.0'
-  implementation 'androidx.activity:activity-compose:1.8.0'
-  implementation 'androidx.compose.ui:ui-tooling-preview:1.5.3'
-  implementation 'androidx.compose.material3:material3:1.1.2'
-  debugImplementation 'androidx.compose.ui:ui-tooling:1.5.3'
-  debugImplementation 'androidx.compose.ui:ui-test-manifest:1.5.3'
-  implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
-	implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation platform("androidx.compose:compose-bom:2025.08.00")
+  
+  implementation "androidx.core:core-ktx:1.17.0"
+  implementation "androidx.startup:startup-runtime:1.2.0"
+  implementation "androidx.activity:activity-compose:1.9.3"
+  implementation "androidx.compose.ui:ui-tooling-preview:1.5.3"
+  implementation "androidx.compose.material3:material3:1.1.2"
+	implementation "com.google.android.material:material:1.9.0"
+  debugImplementation "androidx.compose.ui:ui-tooling:1.5.3"
+  debugImplementation "androidx.compose.ui:ui-test-manifest:1.5.3"
+	implementation fileTree(dir: "libs", include: ["*.jar","*.aar"])
 }

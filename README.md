@@ -24,6 +24,7 @@ Before using `cmdapk`, ensure you have the following installed and accessible in
 - **Android NDK** (optional, only if you use C/C++ in your project)*
 - `adb` must be available in your `PATH`.
 	- Run `adb devices` to confirm it is set up correctly.
+- [sdkmanager](https://developer.android.com/studio#command-line-tools-only) must be available in your `PATH` to be able to download Android SDK/NDK automatically.
 
 ---
 
@@ -54,6 +55,15 @@ Edit the settings file to configure project and SDK locations:
 
 ```bash
 nano /path/to/cmdapk/etc/settings
+
+# Android minimum SDK version
+MIN_SDK=23
+
+# Android target SDK version
+TARGET_SDK=36
+
+# Android compile SDK version
+COMPILE_SDK=36
 
 #Root path for your Android projects
 PROJECT_DIR=/path/to/my/projects
@@ -110,54 +120,71 @@ error: more than one device/emulator
 
 Run `adb devices` to list devices, then specify the target maunually
 
-### Create new components inside a project
-
-```bash
-# Create a new activity.
-cmdapk --activity LoginActivity [--package-name com.example.myapp --module <name>
---layout <name>]
-# Create a new plain Java/Kotlin class 
-cmdapk --class Utils [--packag-ename com.example.myapp]
-
-# Create a new layout XML file
-cmdapk --layout login_screen
-
 ```
+Usage: cmdapk [options]
 
-## Command Otptions
+ Scaffolding:
+     # Create a new project
+     cmdapk --newp-roject MyApp [ --package-name com.example.myapp --activity SplashScreenActivity 
+            --layout activity_splash --lang kotlin --compose ]
 
-Run `cmapk --help` for all options:
+     # Add Activity to current project, specify a module if it's a mutli-module project
+     cmdapk --activity LoginActivity [ --package-name com.example.myapp --lang kotlin --module <name> --compose ]
 
-```bash
-usage: cmdapk [options]
+     # Add plain class to current project
+     cmdapk --class MyClass [ --package-name com.example.myclass --lang kotlin --module <name> ]
 
-Options
-    --new-project  <name>        Create a project with given name
-    --package-name <name>        Specify package name
-    --activity    <name>        Create a new Activity class  (or set main activity during project creation)
-    --class       <name>        Create a new Java/Kotlin class (not an Activity)
-    --layout      <name>        Create a new layout XML file (or set main layout during project creation)
-    --minsdk      <version>     Minimum SDK version
-    --maxsdk      <version>     Target SDK version
-    --lang        <java/kotlin> Programming language (defaults to Java if not specified)
-    --compile     <project>     Compile the specified project
-    --install     <project>     Install APK for the specified project
-```
+     # Add layout to current project (must not be a Jetpack Compose project)
+     cmdapk --layout tutorial_screen [ --qualifier land|sw600dp|etc  ]
 
-## Quick Start Example
-```bash
-cmdapk --newproject HelloWorld --packagename com.example.helloworld
-cd /path/to/my/projects/HelloWorld
-
-cmdapk --compile .
-cmdapk --insatll .
-
-# Use Kotlin explicitly
-cmdapk --activity LoginActivity --package-name com.example.helloworld --lang kotlin
-
-# Add other components
-cmdapk --class Utils --package-name com.example.helloworld
-cmdapk --layout login_screen
+ Build/Install:
+     # Build release/debug apk
+     cmdapk --compile MyApp [ --release --no-install --aab ]
+     
+     # Install debug/release apk
+     cmdapk --install MyApp [ --release ]
+     
+ Options:
+    --new-project     <name>         Create a new project in PROJECT_DIR, initial module is of type application 
+                                     unless --library is passed
+                                     
+    --package-name    <name>         Package name for project or scaffolding
+    
+    --add-module      <name>         Add a module to current project
+    
+    --app-name        <name>         Use when creating an application module, ignored when --library is passed
+    
+    --activity        <name>         Create an Activity (or set main Activity during project creation)
+    
+    --class           <name>         Add a plain Java/Kotlin class to an existing project
+    
+    --layout          <name>         Create a layout xml file (or set main Layout during project creation)
+    
+    --qualifier       <qual>         Layout qualifier (land, sw600dp, v21, etc)
+    
+    --compose                        Create a JetPack Compose project or activity
+    
+    --compile         [<project>]    Compile a specified project (defaults to current dir if ".")
+    
+    --no-install                     Use with --compile to prevent auto-installation after compilation
+    
+    --module          <name>         A module to perfom an action to
+    
+    --aab                            Use with --compile to bundle an AAB file instead of APK
+    
+    --install         [<project>]    Install app for the specified project (defaults to current dir if ".")
+    
+    --release                        Use with --compile to build a Release APK, or --install to install a Release APK.
+    
+    --library                        Use with --new-project or --add-module to specify a module will be an Android library.
+    
+    --lang            <java|kotlin>  Language for generated classes (defaults to java or kotlin if its a Jetpack Compose project)
+    
+    --minsdk          <value>        Minimum SDK version
+    
+    --targetsdk       <value>        Target SDK version
+    
+    --help                           Show this help and exit
 ```
 
 ## License

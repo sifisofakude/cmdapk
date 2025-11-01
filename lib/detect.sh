@@ -50,12 +50,23 @@ module_type()	{
 		return 1
 	fi
 
-	local regex="\s*id\s?('|\")"
-	local module_id="$(grep -E $regex "$gradle_file" | sed "s/\s*id\s*//" | tr -d '"' | tr -d "'")"
+	local tmp_id=""
 
-	[[ -z "$module_id" ]] && return 1
+	local module_id=`awk '/plugins\s*{/,/}/ { if (!/plugins\s*{|}/) print }' "$gradle_file" | tr -d '\t' | tr -d '\s'`
 
-	echo "$module_id"
-	
-	return 0
+	echo -e "$module_id" | while read -r line;do
+		if [[ "$line" == *"com.android.application"* ]]; then
+			echo "com.android.application"
+			break
+		elif [[ "$line" == *"application"* ]]; then
+			echo "application"
+			break
+		elif [[ "$line" == *"com.android.library"* ]]; then
+			echo "com.android.library"
+			break
+		elif [[ "$line" == *"java-library"* ]]; then
+			echo "java-library"
+			break
+		fi
+	done
 }

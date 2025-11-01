@@ -47,6 +47,7 @@ compile_project()	{
 		[[ "$is_release" == true ]] && build_type="Release" || build_type="Debug"
 	fi
 
+
 	local module="${modulename:-}"
 	if [[ -z "$module" ]] && is_multi_module_project "$proj_dir"; then
 		# IFS=' '
@@ -84,6 +85,8 @@ compile_project()	{
 		build_type=""
 		task_prefix="build"
 		log_msg="Building project '$(project_name_for "$proj_dir")'"
+
+		no_install=true
 	fi
 	# actual gradle tesk to execute
 	gradle_task="${task_prefix}${build_type}"
@@ -102,8 +105,10 @@ compile_project()	{
 	log "$log_msg ..."
 	(cd "$proj_dir" && $gradle_cmd "${gradle_task}") || \
 		die "Gradle build failed."
-
-	[[ "$no_install" != true || "$bundle_aab" == false ]] && install_apk $proj_dir
+	# [[ ! $no_install && ! $bundle_aab ]] && install_apk $proj_dir
+	if ! $no_install && ! $bundle_aab; then
+		install_apk "$proj_dir"
+	fi
 }
 
 install_apk()	{

@@ -1,23 +1,22 @@
 plugins	{
-	id 'com.android.application'
-	id 'org.jetbrains.kotlin.android'
+	id ("com.android.application")
 }
 
 android	{
-	namespace = '__PACKAGE_NAME__'
+	namespace = "__PACKAGE_NAME__"
 	compileSdkVersion = __COMPILE_SDK__
 	defaultConfig	{
-		applicationId = '__PACKAGE_NAME__'
+		applicationId = "__PACKAGE_NAME__"
 		minSdkVersion = __MIN_SDK__
 		targetSdkVersion = __TARGET_SDK__
 		versionCode = 1
-		versionName = '1.0'
+		versionName = "1.0"
 	}
 
 	buildTypes	{
 		release	{
 			minifyEnabled = false
-			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+			proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
 		}
 		
 		debug {
@@ -38,10 +37,9 @@ java	{
 }
 
 dependencies	{
-  implementation 'androidx.core:core-ktx:1.12.0'
-	implementation 'androidx.appcompat:appcompat:1.6.1'
-	implementation 'com.google.android.material:material:1.9.0'
-	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-	implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
-	implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation "androidx.core:core-ktx:1.12.0"
+	implementation "androidx.appcompat:appcompat:1.6.1"
+	implementation "com.google.android.material:material:1.9.0"
+	implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+	implementation fileTree(dir: "libs", include: ["*.jar","*.aar"])
 }

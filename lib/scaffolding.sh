@@ -109,7 +109,7 @@ create_activity()	{
 
 	# modulename="${modulename:-}"
 
-	local gradle_file="$(gradle_file_for "$proj_dir/" "$modulename")"
+	local gradle_file="$(gradle_file_for "$proj_dir" "$modulename")"
 	local module_id="$(module_type "$gradle_file")"
 
 	if [[ "$module_id" != "com.android.application" && "$module_id" != "com.android.library" ]]; then

@@ -29,8 +29,11 @@ create_project()	{
 		mkdir "$proj_dir"
 	fi
 
+
+	local composePlugin="/__COMPOSE_GRADLE_PLUGIN__/d"
 	if [[ "$is_compose" == true ]];then
 		lang="compose"
+		composePlugin="s/__COMPOSE_GRADLE_PLUGIN__/classpath/g"
 	fi
 	log "Creating project '$projectname' at $proj_dir"
 
@@ -42,6 +45,7 @@ create_project()	{
 	quiet_mode=false
 
 	find "$proj_dir/" -type f -exec sed -i \
+		-e "$composePlugin" \
 		-e "s#__PROJECT_NAME__#${projectname}#g" \
 		-e "s#sdk.dir=#sdk.dir=${ANDROID_SDK:-}#g" \
 		-e "s#ndk.dir=#ndk.dir=${ANDROID_NDK:-}#g" {} +
@@ -57,7 +61,7 @@ add_module_for()	{
 	local appname="${appname:-$(project_name_for "$proj_dir")}"
 	local activity="${activity}"
 	local lang="${language,,}"
-	local pkg="${packagename:-com.example.$(echo "${name,,}")}"
+	local pkg="${packagename:-com.example.$(echo "${appname,,}")}"
 	local pkg_path="$(echo "$pkg" | sed 's#\.#/#g')"
 
 	local settings_file="$(settings_file_for "$proj_dir")"
@@ -97,8 +101,9 @@ add_module_for()	{
 	fi
 
 	# SDK defaults
-	local minsdk="${min_sdk:-21}"
-	local targetsdk="${target_sdk:-35}"
+	local minsdk="${min_sdk:-$(echo "${MIN_SDK:-23}")}"
+	local targetsdk="${target_sdk:-$(echo "${TARGET_SDK:-36}")}"
+	local compilesdk="${compile_sdk:-$(echo "${COMPILE_SDK:-targetsdk}")}"
 
 
 	mkdir -p "$proj_dir/$modulename/src/main/java"
@@ -128,6 +133,7 @@ add_module_for()	{
 		-e "s#__ACTIVITY_NAME__#${activity}#g" \
 		-e "s#__MIN_SDK__#${minsdk}#g" \
 		-e "s#__TARGET_SDK__#${targetsdk}#g" \
+		-e "s#__COMPILE_SDK__#${compilesdk}#g" \
 		-e "s#__PACKAGE_NAME__#${pkg}#g" \
 		-e "s#__COMPILE_SDK__#${targetsdk}#g" {} +
 

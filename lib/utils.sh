@@ -48,24 +48,43 @@ cat <<EOF
  Options:
     --new-project     <name>         Create a new project in PROJECT_DIR, initial module is of type application 
                                      unless --library is passed
+                                     
     --package-name    <name>         Package name for project or scaffolding
+    
     --add-module      <name>         Add a module to current project
+    
     --app-name        <name>         Use when creating an application module, ignored when --library is passed
+    
     --activity        <name>         Create an Activity (or set main Activity during project creation)
+    
     --class           <name>         Add a plain Java/Kotlin class to an existing project
+    
     --layout          <name>         Create a layout xml file (or set main Layout during project creation)
+    
     --qualifier       <qual>         Layout qualifier (land, sw600dp, v21, etc)
+    
     --compose                        Create a JetPack Compose project or activity
+    
     --compile         [<project>]    Compile a specified project (defaults to current dir if ".")
+    
     --no-install                     Use with --compile to prevent auto-installation after compilation
+    
     --module          <name>         A module to perfom an action to
+    
     --aab                            Use with --compile to bundle an AAB file instead of APK
+    
     --install         [<project>]    Install app for the specified project (defaults to current dir if ".")
+    
     --release                        Use with --compile to build a Release APK, or --install to install a Release APK.
+    
     --library                        Use with --new-project or --add-module to specify a module will be an Android library.
+    
     --lang            <java|kotlin>  Language for generated classes (defaults to java or kotlin if its a Jetpack Compose project)
+    
     --minsdk          <value>        Minimum SDK version
+    
     --targetsdk       <value>        Target SDK version
+    
     --help                           Show this help and exit
     
 EOF
@@ -210,7 +229,7 @@ modules_for()	{
 	settings_file="$(settings_file_for "$1")" || die "No settings.gradle(.kts) found in '$1'"
 
 	# Extract module names from include() lines
-	grep -E "include" "$settings_file" | \
+	grep -E "^include" "$settings_file" | \
 		sed -E 's/include\s*\((.*)\)/\1/;s/include\s*//' | \
 		tr -d ':' | tr -d "'" | tr -d '"' | tr ',' ' ' | tr '\n' ' ' | xargs
 }

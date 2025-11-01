@@ -16,13 +16,22 @@
 #  limitations under the License.
 # 
 
+# Default minimum Android SDK
+MIN_SDK=23
+
+# Default target Android SDK
+TARGET_SDK=36
+
+# Default compile Android SDK
+COMPILE_SDK=36
+
 # Root directory for projects, uncomment variable to set a value
 # eg. PROJECT_DIR=/home/user/AndroidProjects
-# PROJECT_DIR=
+PROJECT_DIR=""
 
 # Path to the android sdk to compile projects
 # eg. ANDROID_SDK=$HOME/Android/SDK
-# ANDROID_SDK=
+ANDROID_SDK=""
 
 # Path to the NDK to compile C/C++ shared libraries
 # eg. ANDROID_SDK=$HOME/Android/NDK
