@@ -102,7 +102,9 @@ create_activity()	{
 	local ext="java"
 	if [[ "$lang" == "compose" || "$lang" == "kotlin" ]]; then
 		ext="kt"
-	else
+	fi
+
+	if [[ "$lang" == "java" || "$lang" == "kotlin" ]]; then
 		log_msg="an Activity"
 		create_layout "$proj_dir"
 	fi

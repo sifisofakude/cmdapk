@@ -4,11 +4,11 @@ plugins	{
 
 android	{
 	namespace = "__PACKAGE_NAME__"
-	compileSdkVersion = __COMPILE_SDK__
+	compileSdk = __COMPILE_SDK__
 	defaultConfig	{
 		applicationId = "__PACKAGE_NAME__"
-		minSdkVersion = __MIN_SDK__
-		targetSdkVersion = __TARGET_SDK__
+		minSdk = __MIN_SDK__
+		targetSdk = __TARGET_SDK__
 		versionCode = 1
 		versionName = "1.0"
 	}
