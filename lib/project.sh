@@ -32,7 +32,7 @@ create_project()	{
 
 	local composePlugin="/__COMPOSE_GRADLE_PLUGIN__/d"
 	if [[ "$is_compose" == true ]];then
-		lang="compose"
+		language="compose"
 		composePlugin="s/__COMPOSE_GRADLE_PLUGIN__/classpath/g"
 	fi
 	log "Creating project '$projectname' at $proj_dir"

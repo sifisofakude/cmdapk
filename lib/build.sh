@@ -107,7 +107,8 @@ compile_project()	{
 		die "Gradle build failed."
 	# [[ ! $no_install && ! $bundle_aab ]] && install_apk $proj_dir
 	if ! $no_install && ! $bundle_aab; then
-		install_apk "$proj_dir"
+		install_target="$proj_dir"
+		install_apk
 	fi
 }
 
