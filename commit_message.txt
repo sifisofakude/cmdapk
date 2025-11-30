@@ -1,5 +1,0 @@
-Minor bug fix/sub module support
-- fixed `project_package_for` function returning incorrect main package for apps when creating a class
-- added support for submodules(adding/compiling or installing)
-- added support for namespace renaming so you can use the same package in multiple modules
-- added environment variable LANG so users can set their preffered default programming language
