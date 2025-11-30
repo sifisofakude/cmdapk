@@ -1,6 +1,6 @@
-#cmdapk
+# cmdapk
 
-[![License](https://img.sheilds.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://upload.wikimedia.org/wikipedia/commons/d/db/Apache_Software_Foundation_Logo_%282016%29.svg)](LICENSE)
 
 `cmdapk` is a lightweight CLI tool for scaffolding and building Android projects directly from the terminal
 
