@@ -1,25 +1,20 @@
 plugins	{
-	id("com.android.library")
+	id "com.android.library"
 }
 
 android	{
-	namespace = "__PACKAGE_NAME__"
+	namespace = "__NAMESPACE__"
 	compileSdk = __COMPILE_SDK__
 	defaultConfig	{
-		minSdkVersion = __MIN_SDK__
+		applicationId = "__PACKAGE_NAME__"
+		minSdk = __MIN_SDK__
 		targetSdk = __TARGET_SDK__
 		versionCode = 1
 		versionName = "1.0"
-		
 		consumerProguardFiles "consumer-rules.pro"
 	}
 
 	buildTypes	{
-		release	{
-			minifyEnabled = false
-			proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-		}
-		
 		debug {
 		  debuggable true
 		}

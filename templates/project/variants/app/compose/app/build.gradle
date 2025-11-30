@@ -1,10 +1,10 @@
 plugins	{
-	id("com.android.application")
-	id("org.jetbrains.kotlin.plugin.compose")
+	id "com.android.application"
+	id "org.jetbrains.compose"
 }
 
 android	{
-	namespace = "__PACKAGE_NAME__"
+	namespace = "__NAMESPACE__"
 	compileSdk = __COMPILE_SDK__
 	defaultConfig	{
 		applicationId = "__PACKAGE_NAME__"

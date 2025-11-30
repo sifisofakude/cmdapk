@@ -27,10 +27,10 @@ create_layout()	{
 
 	if ! is_multi_module_project "$proj_dir" && [[ -z "$modulename" ]]; then
 		modulename="$(modules_for "$proj_dir")"
-	elif [[ -n "$modulename" && ! -d "$proj_dir/$modulename" ]]; then
+	elif [[ -n "$modulename" && ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
 		die "Module '$modulename' does not exist. Run cmdapk --add-module $modulename to create it."
 	elif [[ -z "$modulename" ]]; then
-		die "No module name supplied. Run cmdapk --module <name> --layout <name>"
+		die "Module is required to create a layout in a mitli module project. Run cmdapk --module <name> --layout <name>"
 	fi
 
 	# optional qualifier
@@ -48,7 +48,7 @@ create_layout()	{
 		die "Cannot create XML layout in a Compose project"
 	fi
 	
-	local layout_dir="$proj_dir/$modulename/src/main/res/layout$qualifier"
+	local layout_dir="$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/src/main/res/layout$qualifier"
 	mkdir -p "$layout_dir"
 
 	local layout_file="$layout_dir/$layoutname.xml"
@@ -78,13 +78,13 @@ create_activity()	{
 
 	local log_msg=""
 	
-
 	if ! is_multi_module_project "$proj_dir" && [[ -z "$modulename" ]]; then
 		modulename="$(modules_for "$proj_dir")"
-	elif [[ -n "$modulename" && ! -d "$proj_dir/$modulename" ]]; then
+	elif [[ -n "$modulename" && ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
+		echo "$modulename"
 		die "Module '$modulename' does not exist. Run cmdapk --add-module $modulename to create it."
 	elif [[ -z "$modulename" ]] && is_multi_module_project "$proj_dir"; then
-		die "No module name supplied. Run cmdapk --module <name> --activity <name> [ --packagename <name> --layout <name> ]"
+		die "Module is required to create an Activity in a multi module project. Run cmdapk --module <name> --activity <name> [ --packagename <name> --layout <name> ]"
 	fi
 
 
@@ -100,6 +100,8 @@ create_activity()	{
 	fi
 	
 	local ext="java"
+	# if lang is empty set it to environment LANG or kotlin if LANG is not set
+	[[ -z "$lang" ]] && lang="${LANG:-kotlin}"
 	if [[ "$lang" == "compose" || "$lang" == "kotlin" ]]; then
 		ext="kt"
 	fi
@@ -129,12 +131,12 @@ create_activity()	{
 	
 	if [[ -z "$pkg" ]]; then
 		die "Could not determine package name: no 'namespace' found in $modulename/build.gradle(.kts). \
-		Please pass --packagename explicitly, or add a namespace to your Gradle config"
+		Please pass --package-name explicitly, or add a namespace to your Gradle config"
 	fi
 	
 	local pkg_path="$(echo "$pkg" | sed "s#\.#/#g")"
 	local java_root="$(source_dir_for "$proj_dir")/$pkg_path"
-	
+
 	mkdir -p "$java_root"
 	# Check for duplicates ignoring extension
 	if files=$(file_exists_ignore_ext "$java_root/$activity"); then
@@ -168,8 +170,16 @@ create_class()	{
 	local project="$(basename "$proj_dir")"
 	[[ -z "$classname" ]] && die "Class name required (use --class <Name>)"
 
+	if ! is_multi_module_project "$proj_dir" && [[ -z "$modulename" ]]; then
+		modulename="$(modules_for "$proj_dir")"
+	elif [[ -n "$modulename" && ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
+		die "Module '$modulename' does not exist. Run cmdapk --add-module $modulename to create it."
+	elif [[ -z "$modulename" ]]; then
+		die "Module required to create a class in a multi module project. Run cmdapk --module <name> --class <name> [ --packagename <name> --layout <name> ]"
+	fi
+	
 	local pkg=""
-	pkg="$(project_package_for "$proj_dir")" || pkg="${packagename}"
+	pkg="${packagename:-$(project_package_for "$proj_dir" "$modulename")}"
 		
 	if [[ -z "$pkg" ]]; then
 		die "Could not determine package name: no 'namespace' found in app/build.gradle(.kts). \
@@ -189,18 +199,11 @@ create_class()	{
 		ext="kt"
 	fi
 
-	if ! is_multi_module_project "$proj_dir" && [[ -z "$modulename" ]]; then
-		modulename="$(modules_for "$proj_dir")"
-	elif [[ -n "$modulename" && ! -d "$proj_dir/$modulename" ]]; then
-		die "Module '$modulename' does not exist. Run cmdapk --add-module $modulename to create it."
-	elif [[ -z "$modulename" ]]; then
-		die "No module name supplied. Run cmdapk --module <name> --class <name> [ --packagename <name> --layout <name> ]"
-	fi
 	
 	local pkg_path="$(echo "${pkg,,}" | sed "s#\.#/#g")"
 	local java_root="$(source_dir_for "$proj_dir")/$pkg_path"
 
-	# Check for duplucates ignoring extension
+	# Check for duplucate classes ignoring extension
 	if files=$(file_exists_ignore_ext "$java_root/$classname"); then
 		die "Class already exist: $files"
 	fi

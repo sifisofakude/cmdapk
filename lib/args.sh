@@ -26,11 +26,14 @@ packagename=""
 activity=""
 classname=""
 layoutname=""
+namespace=""
+addmodule=""
 modulename=""
 appname=""
 compile_target=""
 install_target=""
-language="java" #default
+language=""
+dsl=""
 min_sdk=""
 target_sdk=""
 help_req=""
@@ -54,8 +57,10 @@ parse_args()	{
 			--new-project=*) projectname="${arg#*=}"; shift;;
 			--package-name=*) packagename="${arg#*=}"; shift;;
 			--app-name=*) appname="${arg#*=}"; shift;;
-			--add-module=*) modulename="${arg#*=}"; shift;;
+			--add-module=*) addmodule="${arg#*=}"; shift;;
 			--module=*) modulename="${arg#*=}"; shift;;
+			--dsl=*) dsl="${arg#*=}"; shift;;
+			--namespace=*) namespace="${arg#*=}"; shift;;
 			--activity=*) activity="${arg#*=}"; shift;;
 			--class=*) classname="${arg#*=}"; shift;;
 			--layout=*) layoutname="${arg#*=}"; shift;;
@@ -78,7 +83,7 @@ parse_args()	{
 			--*) #support "--opt value" form
 			opt="${arg#--}"
 			case "$opt" in
-				new-project|app-name|add-module|module|package-name|activity|class|layout|compile|install|lang|minsdk|maxsdk)
+				new-project|app-name|namespace|add-module|module|package-name|dsl|activity|class|layout|compile|install|lang|minsdk|maxsdk)
 				if [[ $# -lt 2 || "$2" == --* ]];then
 					die "--$opt requires a value"
 				fi
@@ -88,8 +93,10 @@ parse_args()	{
 					new-project) projectname="$val" ;;
 					package-name) packagename="$val" ;;
 					module) modulename="$val" ;;
+					dsl) dsl="$val" ;;
+					namespace) namespace="$val" ;;
 					app-name) appname="$val" ;;
-					add-module) modulename="$val" ;;
+					add-module) addmodule="$val" ;;
 					activity) activity="$val" ;;
 					class) classname="$val" ;;
 					layout) layoutname="$val" ;;

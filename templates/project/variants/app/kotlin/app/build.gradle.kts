@@ -1,5 +1,5 @@
 plugins	{
-	id "com.android.application"
+	id("com.android.application")
 }
 
 android	{
@@ -37,8 +37,11 @@ java	{
 }
 
 dependencies	{
-	implementation "androidx.appcompat:appcompat:1.6.1"
-	implementation "com.google.android.material:material:1.9.0"
-	implementation "androidx.constraintlayout:constraintlayout:2.1.4"
-	implementation fileTree(dir: "libs", include: ["*.jar","*.aar"])
+  implementation("androidx.core:core-ktx:1.12.0")
+	implementation("androidx.appcompat:appcompat:1.6.1")
+	implementation("com.google.android.material:material:1.9.0")
+	implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+	implementation(fileTree("libs") {
+	  include("*.jar","*.aar")
+	})
 }

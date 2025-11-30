@@ -21,15 +21,14 @@
 
 compile_project()	{
 	# resolve project path
+	# log "$compile_target"
 	local proj_dir="$(current_project_root "$compile_target")"
 	local projectname="$(project_name_for "$proj_dir")"
 
 	if ! is_multi_module_project "$proj_dir" && [[ -z "$modulename" ]]; then
 		modulename="$(modules_for "$proj_dir")"
-	elif [[ -n "$modulename" && ! -d "$proj_dir/$modulename" ]]; then
+	elif [[ -n "$modulename" && ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
 		die "Module '$modulename' does not exist. Run cmdapk --add-module $modulename to create it."
-	# elif [[ -z "$modulename" ]] && is_multi_module_project "$proj_dir"; then
-		# die "No module name supplied. Run cmdapk --module <name> --activity <name> [ --packagename <name> --layout <name> ]"
 	fi
 	
 	local gradle_file
@@ -67,7 +66,7 @@ compile_project()	{
 	# fi
 
 
-	if [[ ! -d "$proj_dir/$module" ]]; then
+	if [[ ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
 		die "Module '$module' does not exist"
 	fi
 
@@ -152,7 +151,7 @@ install_apk()	{
 	fi
 
 	# expected APK output dir
-	local apk_dir="$proj_dir/${module}/build/outputs/apk/$build_type"
+	local apk_dir="$proj_dir/$(echo "$module" | sed "s#:#/#g")/build/outputs/apk/$build_type"
 	[[ ! -d "$apk_dir" ]] && die "APK directory not found: $apk_dir/. Please biuld the project first"
 	
 	# look for and existing APK

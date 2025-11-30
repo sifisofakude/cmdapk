@@ -56,6 +56,9 @@ Edit the settings file to configure project and SDK locations:
 ```bash
 nano /path/to/cmdapk/etc/settings
 
+# Default programming language for classes
+LANG="kotlin"
+
 # Android minimum SDK version
 MIN_SDK=23
 
@@ -151,6 +154,8 @@ Usage: cmdapk [options]
     --package-name    <name>         Package name for project or scaffolding
     
     --add-module      <name>         Add a module to current project
+    
+    --namespace       <name>         Set/rename namespace for current project
     
     --app-name        <name>         Use when creating an application module, ignored when --library is passed
     

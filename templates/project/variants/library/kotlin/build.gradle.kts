@@ -1,5 +1,5 @@
 plugins	{
-	id "com.android.library"
+	id("com.android.application")
 }
 
 android	{
@@ -11,7 +11,7 @@ android	{
 		targetSdk = __TARGET_SDK__
 		versionCode = 1
 		versionName = "1.0"
-		consumerProguardFiles "consumer-rules.pro"
+		consumerProguardFiles("consumer-rules.pro")
 	}
 
 	buildTypes	{
@@ -32,5 +32,7 @@ java	{
 }
 
 dependencies	{
-	implementation fileTree(dir: "libs", include: ["*.jar","*.aar"])
+	implementation(fileTree("libs") {
+	  include("*.jar","*.aar")
+	})
 }

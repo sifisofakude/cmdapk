@@ -53,6 +53,8 @@ cat <<EOF
     
     --add-module      <name>         Add a module to current project
     
+    --namespace       <name>         Set/rename namespace for current project
+    
     --app-name        <name>         Use when creating an application module, ignored when --library is passed
     
     --activity        <name>         Create an Activity (or set main Activity during project creation)
@@ -93,7 +95,7 @@ EOF
 
 # Utility: project path resolution
 project_path_for()	{
-	local proj="$1"
+	local proj="${1:-}"
 	local candidate=""
 	
 	if [[ -z "$proj" || "$proj" == "." ]];then
@@ -115,7 +117,7 @@ project_package_for()	{
 	local gradle_file=$(gradle_file_for "$proj_dir" "$modulename") || return 1
 
 	# 1. Try namespace (modern AGP)
-	local ns=$(grep -E '\s*namespace\s*' "$gradle_file" | head -n1 | sed -E "s/\s*namespace\s*=?\s*//;s/'//g")
+	local ns=$(grep -E '\s*namespace\s*' "$gradle_file" | head -n1 | sed -E "s/\s*namespace\s*=?\s*//;s/['|\"]//g")
 
 	if [[ -n "$ns" ]]; then
 		echo "$ns"
@@ -123,7 +125,7 @@ project_package_for()	{
 	fi
 
 	# 2. Try applicatinId (legacy style)
-	local appId=$(grep -E '\s*applicatinId\s*' "$gradle_file" | head -n1 | sed -E "s/\s*applicatinId\s*=?\s*//;s/'//g")
+	local appId=$(grep -E '\s*applicatinId\s*' "$gradle_file" | head -n1 | sed -E "s/\s*applicationId\s*=?\s*//;s/['|\"]//g")
 	if [[ -n "$appId" ]]; then
 		echo "$appId"
 		return 0
@@ -163,7 +165,7 @@ file_exists_ignore_ext()	{
 
 # Decide where to put source files(java/ vs kotlin/)
 source_dir_for()	{
-	local proj_dir="$1/$modulename/src/main"
+	local proj_dir="$1/$(echo "$modulename" | sed "s#:#/#g")/src/main"
 	if [[ -d "$proj_dir/kotlin" ]]; then
 		echo "$proj_dir/kotlin"
 	else
@@ -175,7 +177,9 @@ gradle_file_for()	{
 	local proj_dir="${1:-}" || die "No project directory supplied"
 	
 	local module 
-	module="${2:-}" || die "No module supplied"
+	module="${2:-modulename}"
+	module="$(echo "$module" | sed "s#:#/#g")"
+	# echo $module
 
 	[[ ! -d "$proj_dir/$module" ]] && die "No directory associated with module $module"
 
@@ -209,6 +213,9 @@ settings_file_for()	{
 current_project_root()	{
 	local current_dir="${1:-.}"
 	[[ "$current_dir" == "." || -z "$current_dir" ]] && current_dir="${PWD}"
+	if [[ ! -d "$current_dir" && -d "$PROJECT_DIR/$current_dir" ]];then
+		current_dir="$PROJECT_DIR/$current_dir"
+	fi
 
 	# Walk upward to find the root settings file
 	while [[ "$current_dir" != "/" ]]; do
@@ -230,8 +237,35 @@ modules_for()	{
 
 	# Extract module names from include() lines
 	grep -E "^include" "$settings_file" | \
-		sed -E 's/include\s*\((.*)\)/\1/;s/include\s*//' | \
-		tr -d ':' | tr -d "'" | tr -d '"' | tr ',' ' ' | tr '\n' ' ' | xargs
+		sed -E 's/include\s*\((.*)\)/\1/;s/include\s*//;s/://' | \
+		tr -d "'" | tr -d '"' | tr ',' ' ' | tr '\n' ' ' | xargs
+}
+
+rename_namespace()	{
+	project="$(project_name_for)"
+	proj_dir="$(project_path_for)"
+
+	if is_multi_module_project "$project" && [[ -z "modulename" ]];then
+		die "Specify the module you want to apply the namespace to using --module <name>"
+	fi
+
+	# check if module/submodule directory exists incrementally
+	local prevmodule=""
+	local modules=($(echo "$modulename" | sed "s/:/\n/g"))
+
+	for module in "${modules[@]}";do
+		prevmodule="$prevmodule/$module"
+		prevmodule="${prevmodule#/}"
+
+		[[ ! -d "$prevmodule" ]] && echo "$(echo "$prevmodule" | sed "s#/#:#g")" && return 1
+	done
+
+	local build_file="$(gradle_file_for "$proj_dir" "$modulename")"
+	if [[ -n "$build_file" ]];then
+		sed -i -E "s/^[[:space:]]*namespace[[:space:]]*=?[[:space:]]\".*\"/namespace = \"$namespace\"/" "$build_file"
+	fi
+	
+	return 0;
 }
 
 # current_project_root

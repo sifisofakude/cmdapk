@@ -1,0 +1,54 @@
+plugins	{
+	id("com.android.application")
+	id("org.jetbrains.compose")
+}
+
+android	{
+	namespace = "__NAMESPACE__"
+	compileSdk = __COMPILE_SDK__
+	defaultConfig	{
+		applicationId = "__PACKAGE_NAME__"
+		minSdk = __MIN_SDK__
+		targetSdk = __TARGET_SDK__
+		versionCode = 1
+		versionName = "1.0"
+	}
+
+	buildTypes	{
+		release	{
+			minifyEnabled = false
+			proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+		}
+		
+		debug {
+		  applicationIdSuffix ".debug"
+		  debuggable = true
+		}
+	}
+	
+	buildFeatures {
+		compose = true
+	}
+}
+
+java	{
+	toolchain	{
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+dependencies	{
+  implementation(platform("androidx.compose:compose-bom:2025.08.00"))
+  
+  implementation("androidx.core:core-ktx:1.17.0")
+  implementation("androidx.startup:startup-runtime:1.2.0")
+  implementation("androidx.activity:activity-compose:1.9.3")
+  implementation("androidx.compose.ui:ui-tooling-preview:1.5.3")
+  implementation("androidx.compose.material3:material3:1.1.2")
+	implementation("com.google.android.material:material:1.9.0")
+  debugImplementation("androidx.compose.ui:ui-tooling:1.5.3")
+  debugImplementation("androidx.compose.ui:ui-test-manifest:1.5.3")
+	implementation(fileTree("libs") {
+	  include("*jar","aar")
+	})
+}

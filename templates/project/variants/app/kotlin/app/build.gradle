@@ -1,9 +1,9 @@
 plugins	{
-	id ("com.android.application")
+	id "com.android.application"
 }
 
 android	{
-	namespace = "__PACKAGE_NAME__"
+	namespace = "__NAMESPACE__"
 	compileSdk = __COMPILE_SDK__
 	defaultConfig	{
 		applicationId = "__PACKAGE_NAME__"
@@ -16,7 +16,7 @@ android	{
 	buildTypes	{
 		release	{
 			minifyEnabled = false
-			proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+			proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 		}
 		
 		debug {

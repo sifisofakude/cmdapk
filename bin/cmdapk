@@ -70,8 +70,11 @@ elif [[ -n "$compile_target" ]];then
 	compile_project
 elif [[ -n "$install_target" ]];then
 	install_apk
-elif [[ -n "$modulename" ]]; then
+elif [[ -n "$addmodule" ]]; then
+	modulename="$addmodule"
 	add_module_for
+elif [[ -n "$namespace" ]]; then
+	rename_namespace
 else
 	usage
 	exit 1

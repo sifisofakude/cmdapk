@@ -40,12 +40,23 @@ create_project()	{
 	modulename="app"
 	$is_library && modulename="library"
 
+	local libraryPlugin="/__LIBRARY_GRADLE_PLUGIN__/d"
+	local applicationPlugin="/__APPLICATION_GRADLE_PLUGIN__/d"
+
+	if [[ "$modulename" == "app" ]];then
+		applicationPlugin="s/__APPLICATION_GRADLE_PLUGIN__/id/g"
+	else
+		libraryPlugin="s/__LIBRARY_GRADLE_PLUGIN__/id/g"
+	fi
+
 	quiet_mode=true
 	add_module_for "$proj_dir"
 	quiet_mode=false
 
 	find "$proj_dir/" -type f -exec sed -i \
 		-e "$composePlugin" \
+		-e "$applicationPlugin" \
+		-e "$libraryPlugin" \
 		-e "s#__PROJECT_NAME__#${projectname}#g" \
 		-e "s#sdk.dir=#sdk.dir=${ANDROID_SDK:-}#g" \
 		-e "s#ndk.dir=#ndk.dir=${ANDROID_NDK:-}#g" {} +
@@ -64,33 +75,61 @@ add_module_for()	{
 	local pkg="${packagename:-com.example.$(echo "${appname,,}")}"
 	local pkg_path="$(echo "$pkg" | sed 's#\.#/#g')"
 
+	[[ -z "$lang" ]] && lang="${LANG,,:-kotlin}"
+
+	local dsl="${dsl:-$DSL_LANG}"
+	[[ -z "$dsl" ]] && dsl="kotlin"
+
 	local settings_file="$(settings_file_for "$proj_dir")"
 	if [[ -z "$settings_file" && -z "$projectname" ]]; then
 		die "Current directory is not a Gradle project"
 	elif [[ -z "$settings_file" ]]; then
 		# Copy base project skeleton (with app/src/main/res + Manifest)
 		cp -r "$template_root/base/project_level/"* "$proj_dir/"
+
+		if [[ "$dsl" == "kotlin" ]];then
+			find "$proj_dir" -type f -name '*.gradle' ! -name '*.gradle.kts' | while read f;do \
+				rm "$f" \
+			;done
+		else
+			rm "$proj_dir/"*".gradle.kts"
+		fi
+		
 		settings_file="$(settings_file_for "$proj_dir")"
 	fi
 
 	# Normalize module name (remove leading colon if present)
 	modulename="${modulename#:}"
 
-	# check if module already included
-	if grep -Eq ":?$modulename" "$settings_file"; then
-		die "Module: '$modulename' already exist"
-		return 0
+	# check if module is not already included
+	if ! grep -Eq ":?$modulename" "$settings_file"; then
+		if [[ "$settings_file" == *".kts" ]];then
+			echo "include(\":$modulename\")" >> "$settings_file"
+		else
+			echo "include \":$modulename\"" >> "$settings_file"
+		fi
 	fi
 
+	[[ -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]] && return 0
 
-	echo "include(\":$modulename\")" >> "$settings_file"
+	# check if module/submodule directory exists incrementally
+	local i=0
+	local prevmodule=""
+	local modules=($(echo "$modulename" | sed "s/:/\n/g"))
+	local module_len="${#modules[@]}"
 
-	[[ -d "$proj_dir/$modulename" ]] && return 0
+	for module in "${modules[@]}";do
+		prevmodule="$prevmodule/$module"
+		prevmodule="${prevmodule#/}"
+
+		[[ ! -d "$prevmodule" && $i -lt $module_len-1 ]] && die "Module '$(echo "$prevmodule" | sed "s#/#:#g")' does not exist in '$(project_name_for "$proj_dir")'"
+		((i=$i+1))
+	done
 
 	# create module directory
-	mkdir "$proj_dir/$modulename"
+	mkdir "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")"
 
-	cp -r "$template_root/base/module_level/"* "$proj_dir/$modulename/"
+	cp -r "$template_root/base/module_level/"* "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")"
 
 	local moduletype="app"
 	if ! $is_library; then
@@ -106,27 +145,30 @@ add_module_for()	{
 	local compilesdk="${compile_sdk:-$(echo "${COMPILE_SDK:-targetsdk}")}"
 
 
-	mkdir -p "$proj_dir/$modulename/src/main/java"
+	mkdir -p "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/src/main/java"
 
-	cp "$template_root/variants/$moduletype/AndroidManifest.xml" "$proj_dir/$modulename/src/main/"
-
-	local build_file
-	if [[ "$moduletype" == "app" ]]; then
-		build_file="$template_root/variants/$moduletype/$lang/app/build.gradle"
-	else
-		build_file="$template_root/variants/$moduletype/$lang/build.gradle"
-	fi
+	cp "$template_root/variants/$moduletype/AndroidManifest.xml" "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/src/main/"
 	
+	local build_file
+	[[ "$dsl" == "kotlin" ]] && build_file="build.gradle.kts" || build_file="build.gradle"
+	
+	if [[ "$moduletype" == "app" ]]; then
+		build_file="$template_root/variants/$moduletype/$lang/app/$build_file"
+	else
+		build_file="$template_root/variants/$moduletype/$lang/$build_file"
+	fi
+
 	# copy build.gradle file directy
-	cp "$build_file" "$proj_dir/$modulename/"
+	cp "$build_file" "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/"
 
 	if $is_library; then
 		# Remove all resource files
-		for tmp_folder in `ls "$proj_dir/$modulename/src/main/res/"`; do
-			rm -r "$proj_dir/$modulename/src/main/res/$tmp_folder/"*
+		for tmp_folder in `ls "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/src/main/res/"`; do
+			rm -r "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/src/main/res/$tmp_folder/"*
 		done
 	fi
 
+	[[ -z "$namespace" ]] && namespace="$pkg"
 	# replace placeholders in all files
 	find "$proj_dir/" -type f -exec sed -i \
 		-e "s#__APP_NAME__#${appname}#g" \
@@ -135,6 +177,7 @@ add_module_for()	{
 		-e "s#__TARGET_SDK__#${targetsdk}#g" \
 		-e "s#__COMPILE_SDK__#${compilesdk}#g" \
 		-e "s#__PACKAGE_NAME__#${pkg}#g" \
+		-e "s#__NAMESPACE__#${namespace}#g" \
 		-e "s#__COMPILE_SDK__#${targetsdk}#g" {} +
 
 	local auto_quite=true

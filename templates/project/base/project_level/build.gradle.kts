@@ -1,0 +1,14 @@
+// Top leve build file where you can add configuration options for common to all sub-projects/modules
+buildscript	{
+	repositories	{
+		google()
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+plugins {
+  __APPLICATION_GRADLE_PLUGIN__("com.android.application") version "9.0.0-alpha10" apply false
+  __LIBRARY_GRADLE_PLUGIN__("com.android.library") version "9.0.0-alpha10" apply false
+  __COMPOSE_GRADLE_PLUGIN__("org.jetbrains.compose") version "2.1.21" apply false
+}
