@@ -68,7 +68,8 @@ create_activity()	{
 	[[ -z "$activity" ]] && die "Activity name required (use --activity <Name>)"
 
 	
-	local lang="${language:-java}"
+	local lang="${language,,:-}"
+	[[ -z "$lang" ]] && lang="${LANG:-kotlin}"
 
 	if $is_fragment; then
 		layoutname="${layoutname:-$(echo "${activity,,}" | sed "s/fragment//")_fragment}"
@@ -81,7 +82,6 @@ create_activity()	{
 	if ! is_multi_module_project "$proj_dir" && [[ -z "$modulename" ]]; then
 		modulename="$(modules_for "$proj_dir")"
 	elif [[ -n "$modulename" && ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
-		echo "$modulename"
 		die "Module '$modulename' does not exist. Run cmdapk --add-module $modulename to create it."
 	elif [[ -z "$modulename" ]] && is_multi_module_project "$proj_dir"; then
 		die "Module is required to create an Activity in a multi module project. Run cmdapk --module <name> --activity <name> [ --packagename <name> --layout <name> ]"
@@ -186,7 +186,8 @@ create_class()	{
 		Please pass --packagename explicitly, or add a namespace to your Gradle config"
 	fi
 	
-	local lang="${language:-java}"
+	local lang="${language,,:-}"
+	[[ -z "$lang" ]] && lang="${LANG:-kotlin}"
 
 	if $is_compose; then
 		lang="compose"

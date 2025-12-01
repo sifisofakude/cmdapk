@@ -35,11 +35,11 @@ COMPILE_SDK=36
 
 # Root directory for projects, uncomment variable to set a value
 # eg. PROJECT_DIR=/home/user/AndroidProjects
-PROJECT_DIR="$HDD/CMDAPK"
+PROJECT_DIR=""
 
 # Path to the android sdk to compile projects
 # eg. ANDROID_SDK=$HOME/Android/SDK
-ANDROID_SDK="/mnt/0ca87750-5adc-420b-a266-60d23a5890df/Software/android-sdk"
+ANDROID_SDK=""
 
 # Path to the NDK to compile C/C++ shared libraries
 # eg. ANDROID_SDK=$HOME/Android/NDK
