@@ -33,7 +33,7 @@ TARGET_SDK=36
 # Default compile Android SDK
 COMPILE_SDK=36
 
-# Root directory for projects, uncomment variable to set a value
+# Root directory for projects
 # eg. PROJECT_DIR=/home/user/AndroidProjects
 PROJECT_DIR=""
 

@@ -59,7 +59,7 @@ Edit the settings file to configure project and SDK locations:
 nano /path/to/cmdapk/etc/settings
 
 # Default DSL [Kotlin | Groovy]
-DSL="kotlin"
+DSL_LANG="kotlin"
 
 # Default programming language for classes
 LANG="kotlin"
