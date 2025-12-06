@@ -33,7 +33,7 @@ create_project()	{
 	local composePlugin="/__COMPOSE_GRADLE_PLUGIN__/d"
 	if [[ "$is_compose" == true ]];then
 		language="compose"
-		composePlugin="s/__COMPOSE_GRADLE_PLUGIN__/classpath/g"
+		composePlugin="s/__COMPOSE_GRADLE_PLUGIN__/id/g"
 	fi
 	log "Creating project '$projectname' at $proj_dir"
 
@@ -160,7 +160,7 @@ add_module_for()	{
 
 	# copy build.gradle file directy
 	cp "$build_file" "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/"
-
+	
 	if $is_library; then
 		# Remove all resource files
 		for tmp_folder in `ls "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/src/main/res/"`; do

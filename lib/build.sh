@@ -30,23 +30,10 @@ compile_project()	{
 	elif [[ -n "$modulename" && ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
 		die "Module '$modulename' does not exist. Run cmdapk --add-module $modulename to create it."
 	fi
-	
-	local gradle_file
-	gradle_file=$(gradle_file_for "$proj_dir" "$modulename") || die "No build.gradle(.kts) found for module: '$modulename'"
+
 	
 	local modules="$(modules_for "$proj_dir")"
 	
-	# determine build type from global
-	local task_prefix build_type
-	if [[ "$bundle_aab" == true ]]; then
-		task_prefix="bundle"
-		build_type="Release"
-	else
-		task_prefix="assemble"
-		[[ "$is_release" == true ]] && build_type="Release" || build_type="Debug"
-	fi
-
-
 	local module="${modulename:-}"
 	if [[ -z "$module" ]] && is_multi_module_project "$proj_dir"; then
 		# IFS=' '
@@ -59,7 +46,24 @@ compile_project()	{
 			die "'$projectname' is a multi-module project.use --compile with --module <name>"
 			return 0;
 		fi
+		modulename="$module"
 	fi
+
+	local gradle_file
+	gradle_file=$(gradle_file_for "$proj_dir" "$modulename")
+	[[ -z "$gradle_file" ]] && die "No build.gradle(.kts) found for module: '$modulename'"
+	
+	# determine build type from global
+	local task_prefix build_type
+	if [[ "$bundle_aab" == true ]]; then
+		task_prefix="bundle"
+		build_type="Release"
+	else
+		task_prefix="assemble"
+		[[ "$is_release" == true ]] && build_type="Release" || build_type="Debug"
+	fi
+
+
 
 	# if [[ -z "$module" ]]; then
 		# die "No module to compile. Please use --add-module <name> to add one"

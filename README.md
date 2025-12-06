@@ -9,6 +9,8 @@
 ## Features
 - Create new Android projects with a single command.
 - Add new **Activities, Classes,Fragments, and Layouts** to an existing project
+- Add modules to current project.
+- Support nested modules(add/compile/install)
 - Compile projects using Gradle.
 - Install APKs directly onto a connected device device or emulator via `adb`.
 - Supports **Bash (Linux/macOS)**.
@@ -56,6 +58,9 @@ Edit the settings file to configure project and SDK locations:
 ```bash
 nano /path/to/cmdapk/etc/settings
 
+# Default DSL [Kotlin | Groovy]
+DSL="kotlin"
+
 # Default programming language for classes
 LANG="kotlin"
 
@@ -82,19 +87,22 @@ ANDROID_NDK=/path/to/Android/NDK
 ### Create a new project
 
 ```bash
-# Bash 
-cmdapk --new-project MyApp --package-name com.example.myapp
+
+# namespace defaults to package name
+cmdapk --new-project MyApp [--package-name com.example.myapp]
+
+# specify namespace in order to merge packages
+# with the same package name from other modules
+cmdapk --new-project MyApp [--namespace com.example.myapp.module --package-name com.example.myapp]
 
 ```
 
-By default, all generated classes are created in **Java**.
-Use `--lang kotlin` to generate Kotlin code instead.
+By default, all generated classes are created in **Kotlin**.
+Use `--lang java` or set `LANG="java"` to generate Java code instead.
 
 ### Compile a project
 
 ```bash
-# Bash
-
 # In current project
 cmdapk --compile .
 
@@ -102,7 +110,7 @@ cmdapk --compile .
 cmdapk --compile MyApp
 ```
 
-**Note**: Use `--compile` with `--module <name>` to compile a specific module in a multi-module project
+**Note**: Use `--compile` with `--module <name>` to compile a specific module in a multi-module project. Module name must be in the format `parentModule:childModule:grandChildModule` etc.
 
 ### Install APK
 
@@ -155,13 +163,13 @@ Usage: cmdapk [options]
     
     --add-module      <name>         Add a module to current project
     
-    --namespace       <name>         Set/rename namespace for current project
+    --namespace       <name>         Set/rename namespace for current a module. Used with --module <name> in a multi-module project
     
     --app-name        <name>         Use when creating an application module, ignored when --library is passed
     
-    --activity        <name>         Create an Activity (or set main Activity during project creation)
+    --activity        <name>         Create an Activity or set main Activity during project creation
     
-    --class           <name>         Add a plain Java/Kotlin class to an existing project
+    --class           <name>         Add a plain Java/Kotlin class to an existing project. Use with --module <name> for a mutli-module project.
     
     --layout          <name>         Create a layout xml file (or set main Layout during project creation)
     
