@@ -45,6 +45,10 @@ cat <<EOF
      # Install debug/release apk
      cmdapk --install MyApp [ --release ]
      
+ Note: action options can optionally take a project name, eg. cmdapk --add-module [<project>] <module>
+       except for when creating a new project. passing project name to modifier options does nothing,
+       or give unexpected results when expection a value.
+       
  Options:
     --new-project     <name>         Create a new project in PROJECT_DIR, initial module is of type application 
                                      unless --library is passed
