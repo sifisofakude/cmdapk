@@ -101,8 +101,11 @@ add_module_for()	{
 	# Normalize module name (remove leading colon if present)
 	modulename="${modulename#:}"
 
+	# retrieve included modules
+	local included_modules=$(grep -Eq "include" "$settings_file" | sed "s/include\s*//")
+	
 	# check if module is not already included
-	if ! grep -Eq ":?$modulename" "$settings_file"; then
+	if ! $(echo "$included_modules" | grep -Eq ":?$modulename"); then
 		if [[ "$settings_file" == *".kts" ]];then
 			echo "include(\":$modulename\")" >> "$settings_file"
 		else
