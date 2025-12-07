@@ -20,7 +20,7 @@
 # --------------------------------------------------------------------------------------
 
 create_layout()	{
-	local proj_dir="${1:-$(current_project_root)}"
+	local proj_dir="${1:-$(current_project_root "$action_projectname")}"
 	[[ -z "$proj_dir" ]] && exit
 
 	[[ -z "$layoutname" ]] && die "Layout name required (use --layout <name>)"
@@ -60,7 +60,7 @@ create_layout()	{
 }
 
 create_activity()	{
-	local proj_dir="${1:-$(current_project_root ".")}"
+	local proj_dir="${1:-$(current_project_root "$action_projectname")}"
 	[[ -z "$proj_dir" ]]  && exit
 	
 	local project="$(basename "$proj_dir")"
@@ -164,7 +164,7 @@ create_activity()	{
 }
 
 create_class()	{
-	local proj_dir="${1:-$(current_project_root)}"
+	local proj_dir="${1:-$(current_project_root "$action_projectname")}"
 	[[ -z "${proj_dir}" ]] && exit
 	
 	local project="$(basename "$proj_dir")"

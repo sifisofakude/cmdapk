@@ -66,7 +66,9 @@ create_project()	{
 
 add_module_for()	{
 	# current_project_root() defined in utils.sh
-	local proj_dir="${1:-$(current_project_root)}"
+	local proj_dir="${1:-$(current_project_root "$action_projectname")}"
+
+	[[ -z "$proj_dir" ]] && proj_dir=
 	local template_root="$TEMPLATE_ROOT/project"
 	
 	local appname="${appname:-$(project_name_for "$proj_dir")}"
@@ -102,7 +104,7 @@ add_module_for()	{
 	modulename="${modulename#:}"
 
 	# retrieve included modules
-	local included_modules=$(grep -Eq "include" "$settings_file" | sed "s/include\s*//")
+	local included_modules=$(modules_for "$proj_dir")
 	
 	# check if module is not already included
 	if ! $(echo "$included_modules" | grep -Eq ":?$modulename"); then
@@ -114,7 +116,6 @@ add_module_for()	{
 	fi
 
 	[[ -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]] && return 0
-
 	# check if module/submodule directory exists incrementally
 	local i=0
 	local prevmodule=""
@@ -134,13 +135,21 @@ add_module_for()	{
 
 	cp -r "$template_root/base/module_level/"* "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")"
 
+	# project to add plugin to
+	pluginfor="$proj_dir"
 	local moduletype="app"
 	if ! $is_library; then
 		[[ -z "$activity" ]] && activity="MainActivity"
+
+		add_plugin "com.android.application" "9.0.0-alpha10"
 	else
 		[[ -z "$activity" && -z "$classname" ]] && classname="MainClass"
 		moduletype="library"
+		add_plugin "com.android.library" "9.0.0-alpha10"
 	fi
+# echo "wow"
+
+	$is_compose && add_plugin "org.jetbrains.kotlin.plugin.compose" "2.0.21"
 
 	# SDK defaults
 	local minsdk="${min_sdk:-$(echo "${MIN_SDK:-23}")}"

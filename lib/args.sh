@@ -39,6 +39,10 @@ target_sdk=""
 help_req=""
 layout_qualifier=""
 
+# helper arguments to perfom action
+pluginfor=""
+action_projectname=""
+
 # option flags
 is_compose=false
 is_release=false
@@ -54,22 +58,22 @@ parse_args()	{
 	while [[ $# -gt 0 ]];do
 		arg="$1"
 		case "$arg" in
-			--new-project=*) projectname="${arg#*=}"; shift;;
-			--package-name=*) packagename="${arg#*=}"; shift;;
-			--app-name=*) appname="${arg#*=}"; shift;;
-			--add-module=*) addmodule="${arg#*=}"; shift;;
-			--module=*) modulename="${arg#*=}"; shift;;
-			--dsl=*) dsl="${arg#*=}"; shift;;
-			--namespace=*) namespace="${arg#*=}"; shift;;
-			--activity=*) activity="${arg#*=}"; shift;;
-			--class=*) classname="${arg#*=}"; shift;;
-			--layout=*) layoutname="${arg#*=}"; shift;;
-			--compile=*) compile_target="${arg#*=}"; shift;;
-			--install=*) install_target="${arg#*=}"; shift;;
-			--qualifier=*) layout_qualifier="${arg#*=}"; shift;;
-			--lang=*) language="${arg#*=}"; shift;;
-			--minsdk=*) min_sdk="${arg#*=}"; shift;;
-			--targetsdk=*) target_sdk="${arg#*=}"; shift;;
+			# --new-project=*) projectname="${arg#*=}"; shift;;
+			# --package-name=*) packagename="${arg#*=}"; shift;;
+			# --app-name=*) appname="${arg#*=}"; shift;;
+			# --add-module=*) addmodule="${arg#*=}"; shift;;
+			# --module=*) modulename="${arg#*=}"; shift;;
+			# --dsl=*) dsl="${arg#*=}"; shift;;
+			# --namespace=*) namespace="${arg#*=}"; shift;;
+			# --activity=*) activity="${arg#*=}"; shift;;
+			# --class=*) classname="${arg#*=}"; shift;;
+			# --layout=*) layoutname="${arg#*=}"; shift;;
+			# --compile=*) compile_target="${arg#*=}"; shift;;
+			# --install=*) install_target="${arg#*=}"; shift;;
+			# --qualifier=*) layout_qualifier="${arg#*=}"; shift;;
+			# --lang=*) language="${arg#*=}"; shift;;
+			# --minsdk=*) min_sdk="${arg#*=}"; shift;;
+			# --targetsdk=*) target_sdk="${arg#*=}"; shift;;
 
 			# Flags/Modifiers
 			--aab*) bundle_aab=true; shift;;
@@ -86,6 +90,11 @@ parse_args()	{
 				new-project|app-name|namespace|add-module|module|package-name|dsl|activity|class|layout|compile|install|lang|minsdk|maxsdk)
 				if [[ $# -lt 2 || "$2" == --* ]];then
 					die "--$opt requires a value"
+				fi
+
+				if [[ $# -gt 3 && "$3" != --* ]]; then
+					# assume $2 is a project name
+					action_projectname="$2"; shift
 				fi
 
 				val="$2"; shift 2
@@ -111,9 +120,7 @@ parse_args()	{
 				*) die "Unknown option: $arg" ;
 			esac
 			;;
-			*) # positional argument (maybe target project)
-			err "Unkown option $arg"
-			echo
+			*)
 			shift
 			;;
 		esac

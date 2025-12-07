@@ -104,6 +104,7 @@ project_path_for()	{
 		# user gave an explicit path
 		candidate="$(cd "$proj" && pwd)"
 	elif [[ -n "${PROJECT_DIR:-}" && -d "$PROJECT_DIR/$proj" ]];then
+		# echo $PROJECT_DIR
 		candidate="$(cd "$PROJECT_DIR/$proj" && pwd)"
 	else
 		die "Project $proj not found in current dir or PROJECT_DIR"
@@ -213,7 +214,7 @@ settings_file_for()	{
 current_project_root()	{
 	local current_dir="${1:-.}"
 	[[ "$current_dir" == "." || -z "$current_dir" ]] && current_dir="${PWD}"
-	if [[ ! -d "$current_dir" && -d "$PROJECT_DIR/$current_dir" ]];then
+	if [[ -d "$PROJECT_DIR/$current_dir" ]];then
 		current_dir="$PROJECT_DIR/$current_dir"
 	fi
 
@@ -226,7 +227,6 @@ current_project_root()	{
 
 		current_dir="$(dirname "$current_dir")"
 	done
-	
 	echo ""
 	return 1;
 }
@@ -268,4 +268,22 @@ rename_namespace()	{
 	return 0;
 }
 
-# current_project_root
+add_plugin()	{
+	local plugin="$1"
+	local version="$2"
+
+	local settings_file=$(settings_file_for "$pluginfor")
+
+	local check
+	local dsl="$(echo "$settings_file" | grep ".kts$")"
+
+
+	if ! grep -q "$plugin" "$settings_file";then
+		[[ -z "$dsl" ]] && check="id \"$plugin\"" || check="id(\"$plugin\")"
+		check="\t\t$check version \"$version\" apply false"
+
+		# append plugin
+		sed -i "/^\s*plugins\s*{/a\\$check" "$settings_file"
+	fi
+}
+

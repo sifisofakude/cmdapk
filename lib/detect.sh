@@ -43,16 +43,14 @@ is_multi_module_project()	{
 }
 
 module_type()	{
-	local gradle_file="$1"
+	local build_file="$1"
 
 	# Must exist and be a file
-	if [[ ! -f "$gradle_file" ]]; then
+	if [[ ! -f "$build_file" ]]; then
 		return 1
 	fi
 
-	local tmp_id=""
-
-	local module_id=`awk '/plugins\s*{/,/}/ { if (!/plugins\s*{|}/) print }' "$gradle_file" | tr -d '\t' | tr -d '\s'`
+	local module_id=`awk '/plugins\s*{/,/}/ { if (!/plugins\s*{|}/) print }' "$build_file" | tr -d '\t' | tr -d '\s'`
 
 	echo -e "$module_id" | while read -r line;do
 		if [[ "$line" == *"com.android.application"* ]]; then
