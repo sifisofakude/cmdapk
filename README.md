@@ -1,8 +1,9 @@
-# cmdapk
+<div align="center"><img src="assets/cmdapk.svg" alt="cmdapk - a lightweight CLI too for scaffolding and building Android projects from the terminal"/></div>
 
-[![License](https://upload.wikimedia.org/wikipedia/commons/d/db/Apache_Software_Foundation_Logo_%282016%29.svg)](LICENSE)
 
 `cmdapk` is a lightweight CLI tool for scaffolding and building Android projects directly from the terminal
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?logo=apache )](LICENSE)
 
 ---
 
