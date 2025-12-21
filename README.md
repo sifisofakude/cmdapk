@@ -14,7 +14,7 @@
 - Support nested modules(add/compile/install)
 - Compile projects using Gradle.
 - Install APKs directly onto a connected device device or emulator via `adb`.
-- Supports **Bash (Linux/macOS)**.
+- Supports **Linux/macOS/Windows**(via [Git Bash](https://github.com/git-for-windows/git/releases)/[Cygwin](https://cygwin.com/setup-x86_64.exe)).
 
 ---
 
