@@ -1,12 +1,12 @@
-package __PACKAGE_NAME__;
+package __PACKAGE_NAME__
 
-import android.os.Bundle;
+import android.os.Bundle
 
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.LayoutInflater;
+import android.view.View
+import android.view.ViewGroup
+import android.view.LayoutInflater
 
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.Fragment
 
 public class __CLASS_NAME__ : Fragment()  {
   override fun onCreateView(inflater: LayoutInflater? ,container: ViewGroup? ,savedInstanceState: Bundle?): View	{

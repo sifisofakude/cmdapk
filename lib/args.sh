@@ -92,7 +92,7 @@ parse_args()	{
 					die "--$opt requires a value"
 				fi
 
-				if [[ $# -gt 3 && "$3" != --* ]]; then
+				if [[ $# -gt 2 && "$3" != --* ]]; then
 					# assume $2 is a project name
 					action_projectname="$2"; shift
 				fi

@@ -42,11 +42,16 @@ create_project()	{
 
 	local libraryPlugin="/__LIBRARY_GRADLE_PLUGIN__/d"
 	local applicationPlugin="/__APPLICATION_GRADLE_PLUGIN__/d"
+	local kotlinGradlePlugin="/__KOTLIN_GRADLE_PLUGIN__/d"
 
 	if [[ "$modulename" == "app" ]];then
 		applicationPlugin="s/__APPLICATION_GRADLE_PLUGIN__/id/g"
 	else
 		libraryPlugin="s/__LIBRARY_GRADLE_PLUGIN__/id/g"
+	fi
+	
+	if [[ "$DSL_LANG" == "kotlin" || "$dsl" == "kotlin" ]] || [[ "$language" == "kotlin" ]]; then
+	  kotlinGradlePlugin="s/__KOTLIN_GRADLE_PLUGIN__/id/"
 	fi
 
 	quiet_mode=true
@@ -57,6 +62,7 @@ create_project()	{
 		-e "$composePlugin" \
 		-e "$applicationPlugin" \
 		-e "$libraryPlugin" \
+		-e "$kotlinGradlePlugin" \
 		-e "s#__PROJECT_NAME__#${projectname}#g" \
 		-e "s#sdk.dir=#sdk.dir=${ANDROID_SDK:-}#g" \
 		-e "s#ndk.dir=#ndk.dir=${ANDROID_NDK:-}#g" {} +
@@ -147,7 +153,6 @@ add_module_for()	{
 		moduletype="library"
 		add_plugin "com.android.library" "9.0.0-alpha10"
 	fi
-# echo "wow"
 
 	$is_compose && add_plugin "org.jetbrains.kotlin.plugin.compose" "2.0.21"
 
@@ -170,7 +175,7 @@ add_module_for()	{
 		build_file="$template_root/variants/$moduletype/$lang/$build_file"
 	fi
 
-	# copy build.gradle file directy
+	# copy module build file directly
 	cp "$build_file" "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")/"
 	
 	if $is_library; then

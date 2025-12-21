@@ -1,6 +1,6 @@
 plugins	{
 	id("com.android.application")
-	id("kotlin-android")
+	id("org.jetbrains.kotlin.android")
 }
 
 android	{
@@ -16,13 +16,14 @@ android	{
 
 	buildTypes	{
 		release	{
-			minifyEnabled = false
-			proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+			isMinifyEnabled = false
+			isShrinkResources = false
+			proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 		}
 		
 		debug {
-		  applicationIdSuffix ".debug"
-		  debuggable true
+		  applicationIdSuffix = ".debug"
+		  debuggable = true
 		}
 	}
 	

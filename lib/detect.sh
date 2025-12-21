@@ -31,9 +31,8 @@ is_compose_module()	{
 
 is_multi_module_project()	{
 	local proj_dir="$(project_path_for "$1")"
-	# local modules
+
 	IFS=' ' read -r -a modules <<< "$(modules_for "$proj_dir")"
-	# echo "${modules[@]}"
 
 	if (( ${#modules[@]} > 1 )); then
 		return 0;

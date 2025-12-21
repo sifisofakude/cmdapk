@@ -1,12 +1,12 @@
 plugins	{
 	id("com.android.application")
+	id("org.jetbrains.kotlin.android")
 }
 
 android	{
 	namespace = "__NAMESPACE__"
 	compileSdk = __COMPILE_SDK__
 	defaultConfig	{
-		applicationId = "__PACKAGE_NAME__"
 		minSdk = __MIN_SDK__
 		targetSdk = __TARGET_SDK__
 		versionCode = 1
@@ -16,7 +16,7 @@ android	{
 
 	buildTypes	{
 		debug {
-		  debuggable true
+		  debuggable = true
 		}
 	}
 	

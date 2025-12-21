@@ -63,13 +63,6 @@ compile_project()	{
 		[[ "$is_release" == true ]] && build_type="Release" || build_type="Debug"
 	fi
 
-
-
-	# if [[ -z "$module" ]]; then
-		# die "No module to compile. Please use --add-module <name> to add one"
-	# fi
-
-
 	if [[ ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
 		die "Module '$module' does not exist"
 	fi
@@ -104,6 +97,7 @@ compile_project()	{
 	else
 		die "Neither ./gradlew nor system 'gradle' found. Please install Gradle or include a wrapper"
 	fi
+		log "$gradle_cmd"
 
 	log "$log_msg ..."
 	(cd "$proj_dir" && $gradle_cmd "${gradle_task}") || \

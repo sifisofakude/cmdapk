@@ -108,7 +108,6 @@ create_activity()	{
 
 	if [[ "$lang" == "java" || "$lang" == "kotlin" ]]; then
 		log_msg="an Activity"
-		create_layout "$proj_dir"
 	fi
 
 	# modulename="${modulename:-}"
@@ -142,6 +141,8 @@ create_activity()	{
 	if files=$(file_exists_ignore_ext "$java_root/$activity"); then
 		die "Activity already exist: $files"
 	fi
+
+	[[ "$lang" == "java" || "$lang" == "kotlin" ]] && create_layout "$proj_dir"
 	
 	local template_root="$TEMPLATE_ROOT/project/variants/app"
 	local activity_path="$template_root/$lang/activity.$ext"
