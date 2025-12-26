@@ -21,7 +21,6 @@
 
 compile_project()	{
 	# resolve project path
-	# log "$compile_target"
 	local proj_dir="$(current_project_root "$compile_target")"
 	local projectname="$(project_name_for "$proj_dir")"
 
@@ -36,23 +35,15 @@ compile_project()	{
 	
 	local module="${modulename:-}"
 	if [[ -z "$module" ]] && is_multi_module_project "$proj_dir"; then
-		# IFS=' '
-		# echo "${modules[*]}" | grep -o '\S*\s*'
-		module=("$(echo "${modules[*]}" | grep -o '\S*[Aa]pp\S*' | tr '\n' ' ' | sed "s/\s$//")")
-
-		IFS=' ' read -r -a modules <<< "$module"
-
-		if (( ${#modules[@]} > 1 )); then
-			die "'$projectname' is a multi-module project.use --compile with --module <name>"
-			return 0;
-		fi
-		modulename="$module"
+		# Search for the first encounter of *app* module
+		for tmpModule in "${modules[@]}";do
+			if [[ ! -z "$(echo "$tmpModule" | grep "[Aa]pp")" ]]; then
+				modulename="$tmpModule"
+				break
+			fi
+		done
 	fi
 
-	local gradle_file
-	gradle_file=$(gradle_file_for "$proj_dir" "$modulename")
-	[[ -z "$gradle_file" ]] && die "No build.gradle(.kts) found for module: '$modulename'"
-	
 	# determine build type from global
 	local task_prefix build_type
 	if [[ "$bundle_aab" == true ]]; then
@@ -62,17 +53,18 @@ compile_project()	{
 		task_prefix="assemble"
 		[[ "$is_release" == true ]] && build_type="Release" || build_type="Debug"
 	fi
-
-	if [[ ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
-		die "Module '$module' does not exist"
+	if [[ ! -z "$modulename" && ! -d "$proj_dir/$(echo "$modulename" | sed "s#:#/#g")" ]]; then
+		die "Module '$modulename' does not exist"
 	fi
 
 	local log_msg="$($bundle_aab && echo "Bundling" || echo "Assembling") a ${build_type,,} $($bundle_aab && echo "AAB" || echo "APK") for module '$module' in project '$(project_name_for "$proj_dir")'"
 
-	local gradle_file="$(gradle_file_for "$proj_dir" "$module")"
+	local gradle_file=""
+	[[ ! -z "$modulename" ]] &&	gradle_file="$(gradle_file_for "$proj_dir" "$modulename")"
 	
+	local type=""
 	# retrieve the type of the module(android application/library java application/library)
-	local type="$(module_type "$gradle_file")"
+	[[ ! -z "$gradle_file" ]] && type="$(module_type "$gradle_file")"
 
 	if [[ "$type" == "com.android.library" ]]; then
 		task_prefix="assemble"
@@ -97,7 +89,6 @@ compile_project()	{
 	else
 		die "Neither ./gradlew nor system 'gradle' found. Please install Gradle or include a wrapper"
 	fi
-		log "$gradle_cmd"
 
 	log "$log_msg ..."
 	(cd "$proj_dir" && $gradle_cmd "${gradle_task}") || \
